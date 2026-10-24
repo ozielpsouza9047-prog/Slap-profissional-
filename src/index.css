@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .font-cinzel {
+    font-family: 'Cinzel', serif;
+  }
+  .font-body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  
+  /* Metallic Gold Gradient Text */
+  .gold-gradient-text {
+    background: linear-gradient(135deg, #FFF1C5 0%, #D4AF37 45%, #AA771C 80%, #F3E0AA 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Soft Champagne Metallic Gradient Text */
+  .champagne-gradient-text {
+    background: linear-gradient(135deg, #FFFFFF 0%, #F5E6C8 50%, #C5A059 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Gold Border Gradient */
+  .gold-border-gradient {
+    border-image: linear-gradient(135deg, rgba(212, 175, 55, 0.6), rgba(197, 160, 89, 0.2), rgba(212, 175, 55, 0.5)) 1;
+  }
+
+  /* Dark Gold Glass Card */
+  .gold-glass-card {
+    background: rgba(18, 18, 20, 0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(212, 175, 55, 0.18);
+  }
+
+  .gold-glass-card-hover {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .gold-glass-card-hover:hover {
+    border-color: rgba(212, 175, 55, 0.45);
+    box-shadow: 0 8px 32px -4px rgba(212, 175, 55, 0.12);
+    transform: translateY(-2px);
+  }
+
+  /* Gold Button Solid */
+  .bg-gold-gradient {
+    background: linear-gradient(135deg, #E5C158 0%, #D4AF37 50%, #B8860B 100%);
+  }
+
+  .bg-gold-gradient:hover {
+    background: linear-gradient(135deg, #F0CF6F 0%, #E2BA42 50%, #C89517 100%);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0B0B0C;
+}
+::-webkit-scrollbar-thumb {
+  background: #2A261D;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #D4AF37;
+}

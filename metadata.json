@@ -1,0 +1,6 @@
+{
+  "name": "STUDIO ROYALE - Salão de Beleza & Spa VIP",
+  "description": "Experiência de luxo em beleza, agendamento de serviços, boutique de produtos e gestão exclusiva.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
