@@ -116,5 +116,6 @@ export interface SalonOrder {
   paymentMethod: string;
   date: string;
   status: 'Pendente' | 'Pago' | 'Concluído' | 'Cancelado';
+  items?: CartItem[];
 }
 

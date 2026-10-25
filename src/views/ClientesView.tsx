@@ -3,8 +3,10 @@ import { VIPClient, UserRole } from '../types';
 import { MOCK_VIP_CLIENTS } from '../data/mockData';
 import { 
   Crown, Gift, Star, Search, UserCheck, ShieldCheck, Phone, Mail, Award, Calendar, 
-  Plus, Edit3, Trash2, X, Check, MessageSquare, UserPlus, Filter, Info, FileText
+  Plus, Edit3, Trash2, X, Check, MessageSquare, UserPlus, Filter, Info, FileText,
+  ShoppingBag, Clock, CheckCircle2, PackageCheck, CreditCard, Sparkles, ChevronRight
 } from 'lucide-react';
+import { Appointment, SalonOrder } from '../types';
 
 interface ClientesViewProps {
   userRole: UserRole;
@@ -14,6 +16,9 @@ interface ClientesViewProps {
   onUpdateClient: (updatedClient: VIPClient) => void;
   onDeleteClient: (clientId: string) => void;
   onSelectClientForBooking?: (client: VIPClient) => void;
+  orders?: SalonOrder[];
+  appointments?: Appointment[];
+  userName?: string;
 }
 
 export const ClientesView: React.FC<ClientesViewProps> = ({
@@ -23,7 +28,10 @@ export const ClientesView: React.FC<ClientesViewProps> = ({
   onAddClient,
   onUpdateClient,
   onDeleteClient,
-  onSelectClientForBooking
+  onSelectClientForBooking,
+  orders = [],
+  appointments = [],
+  userName
 }) => {
   const [activeTab, setActiveTab] = useState<'my_profile' | 'directory'>(
     userRole === 'admin' ? 'directory' : 'my_profile'
@@ -45,8 +53,24 @@ export const ClientesView: React.FC<ClientesViewProps> = ({
   const [formNotes, setFormNotes] = useState('');
   const [formBirthdate, setFormBirthdate] = useState('');
 
-  // Primary featured client profile (Helena Cavalcanti or first in list)
-  const myClientProfile = clients.find(c => c.name.includes('Helena')) || clients[0];
+  // Primary featured client profile based on active logged-in client or Helena Cavalcanti fallback
+  const activeNameClean = (userName || '').replace(/\s*\(VIP\)|\s*\(ADM\)/g, '').trim();
+  const myClientProfile = clients.find(c => 
+    activeNameClean && c.name.toLowerCase().includes(activeNameClean.toLowerCase())
+  ) || clients.find(c => c.name.includes('Helena')) || clients[0];
+
+  // Filter orders & appointments for this specific client profile
+  const myOrders = (orders || []).filter(o => {
+    if (!myClientProfile) return false;
+    const clientFirstName = myClientProfile.name.split(' ')[0].toLowerCase();
+    return o.clientName.toLowerCase().includes(clientFirstName);
+  });
+
+  const myAppointments = (appointments || []).filter(a => {
+    if (!myClientProfile) return false;
+    const clientFirstName = myClientProfile.name.split(' ')[0].toLowerCase();
+    return a.clientName.toLowerCase().includes(clientFirstName);
+  });
 
   // Open Add Modal
   const handleOpenAddModal = () => {
@@ -307,6 +331,231 @@ export const ClientesView: React.FC<ClientesViewProps> = ({
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* SEÇÃO: MEUS PEDIDOS */}
+          <div className="space-y-4 pt-6 border-t border-[#26242A]">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-[#D4AF37]/15 border border-[#D4AF37]/30 text-[#D4AF37]">
+                  <ShoppingBag className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-cinzel text-lg font-bold gold-gradient-text">
+                    Meus Pedidos
+                  </h3>
+                  <p className="text-xs text-[#C5A059]">
+                    Histórico de compras e pedidos na Boutique Royale
+                  </p>
+                </div>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-[#18181B] border border-[#D4AF37]/30 text-xs font-mono font-bold text-[#FFF1C5]">
+                {myOrders.length} {myOrders.length === 1 ? 'pedido' : 'pedidos'}
+              </span>
+            </div>
+
+            {myOrders.length === 0 ? (
+              <div className="p-8 rounded-2xl bg-[#121214] border border-[#26242A] text-center space-y-3">
+                <ShoppingBag className="w-8 h-8 text-[#8E8A80] mx-auto opacity-50" />
+                <p className="text-xs text-[#E2D4B7]/70">Você ainda não realizou pedidos na boutique.</p>
+                <button
+                  onClick={() => onNavigate('vitrine')}
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#E5C158] to-[#B8860B] text-[#0B0B0C] text-xs font-extrabold"
+                >
+                  Explorar Vitrine de Produtos
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {myOrders.map((order) => {
+                  const getStatusBadge = (status: string) => {
+                    switch (status) {
+                      case 'Pago':
+                      case 'Concluído':
+                        return 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40';
+                      case 'Pendente':
+                        return 'bg-amber-950/80 text-amber-300 border-amber-500/40';
+                      case 'Cancelado':
+                        return 'bg-red-950/80 text-red-300 border-red-500/40';
+                      default:
+                        return 'bg-[#222127] text-[#FFF1C5] border-[#D4AF37]/30';
+                    }
+                  };
+
+                  return (
+                    <div
+                      key={order.id}
+                      className="p-5 rounded-2xl bg-[#121214] border border-[#D4AF37]/30 hover:border-[#D4AF37]/60 transition-all space-y-3 shadow-lg"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#26242A] pb-3">
+                        <div className="flex items-center gap-3">
+                          <span className="font-mono text-sm font-bold text-[#FFF1C5]">
+                            #{order.id}
+                          </span>
+                          <span className="text-xs text-[#8E8A80]">
+                            {order.date}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-[#C5A059] font-mono">
+                            {order.paymentMethod}
+                          </span>
+                          <span className={`px-2.5 py-0.5 rounded-full border text-[11px] font-bold ${getStatusBadge(order.status)}`}>
+                            {order.status}
+                          </span>
+                        </div>
+                      </div>
+
+                      {order.items && order.items.length > 0 ? (
+                        <div className="space-y-2">
+                          {order.items.map((item, idx) => (
+                            <div key={idx} className="flex items-center justify-between text-xs bg-[#0B0B0C] p-2.5 rounded-xl border border-[#26242A]">
+                              <div className="flex items-center gap-2.5">
+                                {item.image ? (
+                                  <img src={item.image} alt={item.title} className="w-10 h-10 rounded-lg object-cover border border-[#D4AF37]/30" />
+                                ) : (
+                                  <div className="w-10 h-10 rounded-lg bg-[#18181B] flex items-center justify-center text-[#D4AF37]">
+                                    <PackageCheck className="w-4 h-4" />
+                                  </div>
+                                )}
+                                <div>
+                                  <p className="font-semibold text-[#FFF1C5]">{item.title}</p>
+                                  <p className="text-[11px] text-[#8E8A80]">Qtd: {item.quantity}</p>
+                                </div>
+                              </div>
+                              <span className="font-mono font-bold text-[#D4AF37]">
+                                R$ {(item.price * item.quantity).toFixed(2)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-[#E2D4B7]/80 bg-[#0B0B0C] p-3 rounded-xl border border-[#26242A]">
+                          {order.itemsSummary}
+                        </p>
+                      )}
+
+                      <div className="flex items-center justify-between pt-2 border-t border-[#26242A]">
+                        <span className="text-xs text-[#C5A059]">Valor Total</span>
+                        <span className="font-mono text-base font-extrabold gold-gradient-text">
+                          R$ {order.total.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* SEÇÃO: MEUS AGENDAMENTOS */}
+          <div className="space-y-4 pt-6 border-t border-[#26242A]">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-[#D4AF37]/15 border border-[#D4AF37]/30 text-[#D4AF37]">
+                  <Calendar className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-cinzel text-lg font-bold gold-gradient-text">
+                    Meus Agendamentos
+                  </h3>
+                  <p className="text-xs text-[#C5A059]">
+                    Sua agenda de rituais e atendimentos no Studio Royale
+                  </p>
+                </div>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-[#18181B] border border-[#D4AF37]/30 text-xs font-mono font-bold text-[#FFF1C5]">
+                {myAppointments.length} {myAppointments.length === 1 ? 'agendamento' : 'agendamentos'}
+              </span>
+            </div>
+
+            {myAppointments.length === 0 ? (
+              <div className="p-8 rounded-2xl bg-[#121214] border border-[#26242A] text-center space-y-3">
+                <Calendar className="w-8 h-8 text-[#8E8A80] mx-auto opacity-50" />
+                <p className="text-xs text-[#E2D4B7]/70">Você ainda não possui horários agendados.</p>
+                <button
+                  onClick={() => onNavigate('agenda')}
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#E5C158] to-[#B8860B] text-[#0B0B0C] text-xs font-extrabold"
+                >
+                  Agendar Horário VIP
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {myAppointments.map((apt) => {
+                  const getAptStatusBadge = (status: string) => {
+                    switch (status) {
+                      case 'confirmado':
+                        return 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40';
+                      case 'em_cadeira':
+                        return 'bg-purple-950/80 text-purple-300 border-purple-500/40';
+                      case 'concluido':
+                        return 'bg-blue-950/80 text-blue-300 border-blue-500/40';
+                      case 'cancelado':
+                        return 'bg-red-950/80 text-red-300 border-red-500/40';
+                      default:
+                        return 'bg-[#222127] text-[#FFF1C5] border-[#D4AF37]/30';
+                    }
+                  };
+
+                  const getAptStatusLabel = (status: string) => {
+                    switch (status) {
+                      case 'confirmado': return 'Confirmado';
+                      case 'em_cadeira': return 'Em Atendimento';
+                      case 'concluido': return 'Concluído';
+                      case 'cancelado': return 'Cancelado';
+                      default: return status;
+                    }
+                  };
+
+                  return (
+                    <div
+                      key={apt.id}
+                      className="p-5 rounded-2xl bg-[#121214] border border-[#D4AF37]/30 hover:border-[#D4AF37]/60 transition-all flex flex-col justify-between space-y-3 shadow-lg"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <span className="text-[10px] font-extrabold uppercase text-[#D4AF37] tracking-wider block">
+                            Atendimento VIP
+                          </span>
+                          <h4 className="font-cinzel text-base font-bold text-[#FFF1C5]">
+                            {apt.serviceName}
+                          </h4>
+                          <p className="text-xs text-[#C5A059] mt-0.5">
+                            Profissional: <strong className="text-[#FFF1C5]">{apt.stylistName}</strong>
+                          </p>
+                        </div>
+
+                        <span className={`px-2.5 py-0.5 rounded-full border text-[11px] font-bold ${getAptStatusBadge(apt.status)}`}>
+                          {getAptStatusLabel(apt.status)}
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-[#0B0B0C] border border-[#26242A] space-y-1.5 text-xs font-mono">
+                        <div className="flex items-center gap-2 text-[#FFF1C5]">
+                          <Clock className="w-3.5 h-3.5 text-[#D4AF37]" />
+                          <span>Data & Horário: {apt.date} às {apt.time}</span>
+                        </div>
+                        <div className="flex items-center justify-between pt-1 border-t border-[#18181B]">
+                          <span className="text-[#8E8A80]">Valor:</span>
+                          <span className="font-bold text-[#D4AF37]">R$ {apt.price.toFixed(2)}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-end gap-2 pt-1">
+                        <button
+                          onClick={() => onNavigate('agenda')}
+                          className="px-3 py-1.5 rounded-lg bg-[#222127] hover:bg-[#D4AF37] text-[#FFF1C5] hover:text-[#0B0B0C] border border-[#D4AF37]/30 text-xs font-bold transition-all"
+                        >
+                          Reagendar / Detalhes
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       )}

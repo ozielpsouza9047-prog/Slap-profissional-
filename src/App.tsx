@@ -195,6 +195,10 @@ export default function App() {
     setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
   };
 
+  const handleCheckoutComplete = (newOrder: SalonOrder) => {
+    setOrders(prev => [newOrder, ...prev]);
+  };
+
   // Settings Handlers
   const handleUpdateSettings = (newSettings: SalonSettings) => {
     setSettings(newSettings);
@@ -317,6 +321,9 @@ export default function App() {
             onUpdateClient={handleUpdateClient}
             onDeleteClient={handleDeleteClient}
             onSelectClientForBooking={handleSelectClientForBooking}
+            orders={orders}
+            appointments={appointments}
+            userName={userName}
           />
         )}
 
@@ -400,6 +407,9 @@ export default function App() {
         onRemoveItem={handleRemoveCartItem}
         onClearCart={handleClearCart}
         onNavigate={handleNavigate}
+        onCheckoutComplete={handleCheckoutComplete}
+        activeClientName={userName.replace(/\s*\(VIP\)|\s*\(ADM\)/g, '').trim()}
+        activeClientPhone="(11) 98765-4321"
       />
     </div>
   );

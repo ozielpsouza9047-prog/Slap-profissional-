@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CartItem } from '../types';
+import { CartItem, SalonOrder } from '../types';
 import { X, Trash2, ShoppingBag, ArrowRight, ShieldCheck, Tag, Check, CreditCard, QrCode, Store, Sparkles } from 'lucide-react';
 
 interface CartDrawerProps {
@@ -10,6 +10,9 @@ interface CartDrawerProps {
   onRemoveItem: (id: string) => void;
   onClearCart: () => void;
   onNavigate: (view: string) => void;
+  onCheckoutComplete?: (newOrder: SalonOrder) => void;
+  activeClientName?: string;
+  activeClientPhone?: string;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
@@ -19,7 +22,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onUpdateQuantity,
   onRemoveItem,
   onClearCart,
-  onNavigate
+  onNavigate,
+  onCheckoutComplete,
+  activeClientName = 'Dra. Helena Cavalcanti',
+  activeClientPhone = '(11) 98765-4321'
 }) => {
   const [couponCode, setCouponCode] = useState('');
   const [discountPercent, setDiscountPercent] = useState(0);
@@ -28,6 +34,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const [checkoutStep, setCheckoutStep] = useState<'cart' | 'payment' | 'confirmation'>('cart');
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'card' | 'salon'>('pix');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [confirmedOrderId, setConfirmedOrderId] = useState<string>('PED-9045');
 
   if (!isOpen) return null;
 
@@ -55,9 +62,35 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     setIsProcessing(true);
     setTimeout(() => {
       setIsProcessing(false);
+      
+      const orderId = `PED-${Math.floor(1000 + Math.random() * 9000)}`;
+      const itemsSummaryStr = items.map(i => `${i.quantity}x ${i.title}`).join(', ');
+      const paymentLabel = paymentMethod === 'pix' ? 'Pix' : paymentMethod === 'card' ? 'Cartão 12x' : 'Pagar no Salão';
+      const statusVal = paymentMethod === 'salon' ? 'Pendente' : 'Pago';
+
+      const now = new Date();
+      const dateFormatted = `${now.toLocaleDateString('pt-BR')} ${now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+
+      const newOrder: SalonOrder = {
+        id: orderId,
+        clientName: activeClientName,
+        clientPhone: activeClientPhone,
+        itemsSummary: itemsSummaryStr,
+        total: total,
+        paymentMethod: paymentLabel,
+        date: dateFormatted,
+        status: statusVal,
+        items: [...items]
+      };
+
+      if (onCheckoutComplete) {
+        onCheckoutComplete(newOrder);
+      }
+
+      setConfirmedOrderId(orderId);
       setCheckoutStep('confirmation');
       onClearCart();
-    }, 1500);
+    }, 1200);
   };
 
   return (
@@ -328,37 +361,49 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <Check className="w-8 h-8" />
                 </div>
                 <h3 className="font-cinzel text-xl font-bold gold-gradient-text">
-                  Pedido & Reserva Confirmados!
+                  Pedido Confirmado!
                 </h3>
                 <p className="text-xs text-[#E2D4B7]/80 leading-relaxed max-w-xs mx-auto">
-                  Sua reserva no Studio Royale foi concluída com sucesso. Enviamos um comprovante em PDF e lembrete para seu contato.
+                  Seu pedido foi registrado em seu histórico VIP ("Meus Pedidos") e os itens foram removidos da sua sacola.
                 </p>
 
                 <div className="p-4 rounded-xl bg-[#18181B] border border-[#D4AF37]/30 text-left text-xs space-y-2 font-mono">
                   <div className="flex justify-between border-b border-[#26242A] pb-2 text-[#C5A059]">
                     <span>CÓDIGO PEDIDO</span>
-                    <span className="text-[#FFF1C5] font-bold">#ROYALE-9482</span>
+                    <span className="text-[#FFF1C5] font-bold">#{confirmedOrderId}</span>
+                  </div>
+                  <div className="flex justify-between text-[#E2D4B7]/70">
+                    <span>Cliente</span>
+                    <span className="text-[#FFF1C5] font-bold">{activeClientName}</span>
                   </div>
                   <div className="flex justify-between text-[#E2D4B7]/70">
                     <span>Status</span>
-                    <span className="text-emerald-400 font-bold">Aprovado VIP</span>
-                  </div>
-                  <div className="flex justify-between text-[#E2D4B7]/70">
-                    <span>Local</span>
-                    <span className="text-[#FFF1C5]">Studio Royale Jardins</span>
+                    <span className="text-emerald-400 font-bold">Registrado</span>
                   </div>
                 </div>
 
-                <button
-                  onClick={() => {
-                    setCheckoutStep('cart');
-                    onClose();
-                    onNavigate('agenda');
-                  }}
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-[#E5C158] to-[#B8860B] text-[#0B0B0C] font-extrabold text-xs"
-                >
-                  Ver Minha Agenda / Agendamentos
-                </button>
+                <div className="pt-2 flex flex-col gap-2">
+                  <button
+                    onClick={() => {
+                      setCheckoutStep('cart');
+                      onClose();
+                      onNavigate('clientes');
+                    }}
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-[#E5C158] to-[#B8860B] text-[#0B0B0C] font-extrabold text-xs"
+                  >
+                    Ver Meus Pedidos no Perfil VIP
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setCheckoutStep('cart');
+                      onClose();
+                    }}
+                    className="w-full py-2.5 rounded-xl bg-[#18181B] border border-[#26242A] text-[#FFF1C5] font-semibold text-xs"
+                  >
+                    Fechar Sacola
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -433,11 +478,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#E5C158] via-[#D4AF37] to-[#B8860B] text-[#0B0B0C] font-extrabold text-sm tracking-wide shadow-lg hover:brightness-110 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {isProcessing ? (
-                    <span>Processando Reserva VIP...</span>
+                    <span>Processando Pedido VIP...</span>
                   ) : (
                     <>
                       <ShieldCheck className="w-4 h-4" />
-                      <span>Confirmar Reserva & Pagamento</span>
+                      <span>Confirmar Pedido & Pagamento</span>
                     </>
                   )}
                 </button>
