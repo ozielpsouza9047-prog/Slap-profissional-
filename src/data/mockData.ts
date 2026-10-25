@@ -333,3 +333,51 @@ export const MOCK_VIP_CLIENTS: VIPClient[] = [
     avatar: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=300&q=80'
   }
 ];
+
+export const DEFAULT_SALON_SETTINGS = {
+  salonName: 'STUDIO ROYALE',
+  tagline: 'Haute Beauté & Spa Exclusivo',
+  logoUrl: '',
+  address: 'Av. Gabriel Monteiro da Silva, 1420 — Jardins, São Paulo / SP',
+  phone: '(11) 3088-0099',
+  whatsapp: '(11) 99888-7766',
+  email: 'concierge@studioroyale.com.br',
+  goldColorIntensity: 'padrao' as const,
+  securityTwoFactor: true,
+  notifyEmailAppointments: true,
+  carouselSlides: HERO_CAROUSEL_SLIDES
+};
+
+export const INITIAL_ORDERS = [
+  {
+    id: 'PED-9041',
+    clientName: 'Dra. Helena Cavalcanti',
+    clientPhone: '(11) 98765-4321',
+    itemsSummary: '1x Elixir d\'Or Sérum Ouro 24k',
+    total: 340.00,
+    paymentMethod: 'Pix',
+    date: '2026-10-24 15:30',
+    status: 'Pago' as const
+  },
+  {
+    id: 'PED-9042',
+    clientName: 'Beatriz Fonseca',
+    clientPhone: '(11) 99123-8899',
+    itemsSummary: '1x Kérastase Elixir Ultime, 1x Perfume Champagne',
+    total: 505.00,
+    paymentMethod: 'Cartão de Crédito 3x',
+    date: '2026-10-24 14:10',
+    status: 'Concluído' as const
+  },
+  {
+    id: 'PED-9043',
+    clientName: 'Valentina Rossi',
+    clientPhone: '(11) 97654-3210',
+    itemsSummary: '1x Spa de Unhas Royale',
+    total: 180.00,
+    paymentMethod: 'Pagar no Salão',
+    date: '2026-10-24 11:20',
+    status: 'Pendente' as const
+  }
+];
+

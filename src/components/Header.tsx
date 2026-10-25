@@ -11,6 +11,8 @@ interface HeaderProps {
   onOpenCart: () => void;
   userName?: string;
   onOpenLogin: () => void;
+  salonName?: string;
+  tagline?: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -21,7 +23,9 @@ export const Header: React.FC<HeaderProps> = ({
   cartCount,
   onOpenCart,
   userName = 'Cliente VIP',
-  onOpenLogin
+  onOpenLogin,
+  salonName = 'STUDIO ROYALE',
+  tagline = 'Haute Beauté & Spa'
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
@@ -55,10 +59,10 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div>
               <span className="font-cinzel text-xl sm:text-2xl font-bold tracking-wider gold-gradient-text block leading-none">
-                STUDIO ROYALE
+                {salonName}
               </span>
               <span className="text-[10px] tracking-[0.2em] text-[#C5A059] uppercase font-medium block mt-1">
-                Haute Beauté & Spa
+                {tagline}
               </span>
             </div>
           </button>

@@ -8,12 +8,14 @@ interface HomeViewProps {
   onNavigate: (view: string) => void;
   onBookService: (service: BeautyService) => void;
   onAddToCart: (product: SalonProduct) => void;
+  slides?: typeof HERO_CAROUSEL_SLIDES;
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({
   onNavigate,
   onBookService,
-  onAddToCart
+  onAddToCart,
+  slides = HERO_CAROUSEL_SLIDES
 }) => {
   const popularServices = SALON_SERVICES.filter(s => s.popular);
   const featuredProducts = SALON_PRODUCTS.slice(0, 3);
@@ -53,7 +55,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
     <div className="space-y-12 pb-16">
       {/* 1. Hero Auto Carousel Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-        <HomeCarousel slides={HERO_CAROUSEL_SLIDES} onNavigate={onNavigate} />
+        <HomeCarousel slides={slides} onNavigate={onNavigate} />
       </section>
 
       {/* 2. Quick Categories Grid */}

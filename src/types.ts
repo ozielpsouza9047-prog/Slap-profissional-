@@ -65,6 +65,9 @@ export interface VIPClient {
   totalSpent: number;
   lastVisit: string;
   avatar: string;
+  notes?: string;
+  birthdate?: string;
+  cpf?: string;
 }
 
 export interface CartItem {
@@ -89,3 +92,29 @@ export interface CarouselSlide {
   ctaText: string;
   targetView: 'agenda' | 'vitrine' | 'clientes';
 }
+
+export interface SalonSettings {
+  salonName: string;
+  tagline: string;
+  logoUrl: string;
+  address: string;
+  phone: string;
+  whatsapp: string;
+  email: string;
+  goldColorIntensity: 'padrao' | 'intenso' | 'champagne';
+  securityTwoFactor: boolean;
+  notifyEmailAppointments: boolean;
+  carouselSlides: CarouselSlide[];
+}
+
+export interface SalonOrder {
+  id: string;
+  clientName: string;
+  clientPhone: string;
+  itemsSummary: string;
+  total: number;
+  paymentMethod: string;
+  date: string;
+  status: 'Pendente' | 'Pago' | 'Concluído' | 'Cancelado';
+}
+
